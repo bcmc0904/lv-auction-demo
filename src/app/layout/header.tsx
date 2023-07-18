@@ -12,7 +12,7 @@ export default function Header() {
           <Link href={'/'}>Home</Link>
         </li>
         <li>
-          <Link href={'/create-session'}>Create Asset</Link>
+          <Link href={'/create-asset'}>Create Asset</Link>
         </li>
         <li>
           <div className={'switch-user'}>

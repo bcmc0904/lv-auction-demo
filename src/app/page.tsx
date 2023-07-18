@@ -7,8 +7,8 @@ export default function Home() {
   const {auctions} = useAuths()
 
   return <div className="mt-8 mb-6">
-    <h1>All Auctions</h1>
-    <div className="flex gap-4 flex-wrap">
+    <h1 className="text-center">All Auctions</h1>
+    <div className="flex gap-4 flex-wrap justify-center">
       {
         auctions.map((item: any, index: number) => <AuctionTeaser key={index} data={item}/>)
       }

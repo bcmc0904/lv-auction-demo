@@ -280,3 +280,9 @@ table {
     font-weight: 500;
   }
 }
+.form-control {
+  padding: 0.5rem 1rem;
+  border-radius: 0.35rem;
+  border: 1px solid #dddddd;
+  width: 100%;
+}
