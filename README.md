@@ -3,7 +3,7 @@ This is a [Next.js](https://nextjs.org/) project.
 Demo Auction
 
 ## Getting Started
-First, update API url in `src/config.ts`
+First, Set `NEXT_PUBLIC_ENV_API` url in `.env`
 
 Then, run `npm run dev`
 
