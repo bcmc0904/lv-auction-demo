@@ -17,12 +17,17 @@ export default function CreateAsset() {
 
     const result = await post('/auctions/create_session', data)
     if (result.status) {
-      alert('Success')
+      // @ts-ignore
+      const goToDetails = confirm(`Tạo thành công phiên đấu có ID: ${result.docs._id}. Đi đến trang chi tiết.`)
+      if (goToDetails) {
+        // @ts-ignore
+        return window.location.pathname = `/auction/${result.docs._id}`
+      }
       window.location.reload()
     }
   }
   return <div>
-    <h1 className="text-center">Create Asset</h1>
+    <h1 className="text-center">Tạo phiên đấu giá</h1>
     <form onSubmit={handleSubmit} className="box mx-auto max-w-md flex flex-col gap-2">
       <div className="form-item">
         <small>Mã tài sản</small>

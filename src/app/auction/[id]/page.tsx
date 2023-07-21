@@ -72,14 +72,16 @@ export default function AuctionDetails({params}: {params: {id: string}}) {
       setBidPrice(bidPrice + data.priceStep)
     }
     else {
-      if (bidPrice - data.priceStep > curTopPrice) {
-        setBidPrice(bidPrice - data.priceStep)
-      }
+      const newPrice = Math.max(
+        bidPrice - data.priceStep,
+        Math.max(data.priceStarting + data.priceStep, curUserTopPrice + data.priceStep)
+      )
+      setBidPrice(newPrice)
     }
   }
 
   const bidPriceToTop = () => {
-    setBidPrice(curTopPrice + data.priceStep)
+    setBidPrice(Math.max(curTopPrice, data.priceStarting) + data.priceStep)
   }
 
   const renderActionHistories = (histories: Array<any>) => {
@@ -278,11 +280,11 @@ export default function AuctionDetails({params}: {params: {id: string}}) {
 
   useEffect(() => {
     getData()
-  }, [auctions])
+  }, [auctions, update])
 
   useEffect(() => {
     getUserData()
-  }, [data, user?._id])
+  }, [data, user?._id, update])
 
   if (!data) return <div className="mt-8">
     <h1>All Auction</h1>

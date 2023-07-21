@@ -9,14 +9,14 @@ export default function Header() {
     <nav className={'py-4'}>
       <ul className={'menu flex items-center justify-center gap-4'}>
         <li>
-          <Link href={'/'}>Home</Link>
+          <Link href={'/'}>Các phiên đấu</Link>
         </li>
         <li>
-          <Link href={'/create-asset'}>Create Asset</Link>
+          <Link href={'/create-asset'}>Tạo phiên đấu giá</Link>
         </li>
         <li>
           <div className={'switch-user'}>
-            <span>Switch user</span>
+            <span>Thay đổi user</span>
             <select
               value={user ? user._id : ''}
               onChange={(e: any) => {
