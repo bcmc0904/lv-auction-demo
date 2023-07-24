@@ -44,6 +44,8 @@ export default function BidTeaser(props: BidInterface) {
           :
           ''
       }
+      <br/>
+      { props.transactionHash }
     </td>
   </tr>
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import {useEffect, useState} from 'react';
-import {post} from '@/utils/data';
+import {get, post} from '@/utils/data';
 import Loading from '@/components/system/loading';
 import {dateTimeFormat, numberFormat} from '@/utils/helper';
 import BidTeaser from '@/components/entity/bid-teaser';
@@ -18,7 +18,35 @@ export default function AuctionDetails({params}: {params: {id: string}}) {
   const [userDenied, setUserDenied] = useState<boolean>(false)
   const [userWon, setUserWon] = useState<boolean>(false)
   const [userFinalizeBid, setUserFinalizeBid] = useState<boolean>(false)
+  const [transactions, setTransactions] = useState<Array<any>>([])
+  const [waitTransaction, setWaitTransaction] = useState<boolean>(true)
+  const [counter, setCounter] = useState<number>(0)
   const {auctions, user, getAllAuctions} = useAuths()
+
+  const getTransactions = async () => {
+    if (!waitTransaction) return
+    const result = await get(`/auctions/transactions/${params.id}`)
+    if (result.status && result.docs.length) {
+      const fail = result.docs.find((item: any) => !item.transaction_hash)
+      if (!fail) {
+        setTransactions(result.docs)
+        setWaitTransaction(false)
+      }
+    }
+  }
+
+  const getTransactionHash = (actionId: string) => {
+    if (!transactions || !transactions.length) return
+    const result = transactions.find((item: any) => item.action_id === actionId)
+    if (result) {
+      return <a href={`https://testnet.bscscan.com/tx/${result.transaction_hash}`} target={'_blank'}>
+        Transaction detail
+      </a>
+    }
+
+    return ''
+  }
+
   const getData = async () => {
     if (!auctions || !auctions.length) return
 
@@ -85,7 +113,9 @@ export default function AuctionDetails({params}: {params: {id: string}}) {
   }
 
   const renderActionHistories = (histories: Array<any>) => {
-    const tmp = histories.sort((a: any, b: any) => new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime() ? -1 : 1)
+    const tmp = histories
+      .sort((a: any, b: any) => new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime() ? -1 : 1)
+      .filter((item: any) => item.type !== 'create_section')
     return tmp.map((item: any, index: number) => <BidTeaser
       key={index}
       auctionId={data._id}
@@ -95,6 +125,7 @@ export default function AuctionDetails({params}: {params: {id: string}}) {
       {...item}
       loading={loading}
       handleDeny={handleDeny}
+      transactionHash={getTransactionHash(item.uuid)}
     />)
   }
 
@@ -126,6 +157,7 @@ export default function AuctionDetails({params}: {params: {id: string}}) {
     if (result.status) {
       alert(`Xác nhận bạn đã trả ${numberFormat(bidPrice, true)}!`)
       await getAllAuctions()
+      setWaitTransaction(true)
     }
     else {
       alert('Something wrong.')
@@ -142,6 +174,7 @@ export default function AuctionDetails({params}: {params: {id: string}}) {
     if (result.status) {
       alert('Xác nhận thành công.')
       await getAllAuctions()
+      setWaitTransaction(true)
     }
     else {
       alert('Something wrong.')
@@ -165,6 +198,7 @@ export default function AuctionDetails({params}: {params: {id: string}}) {
     if (result.status) {
       alert('Success')
       await getAllAuctions()
+      setWaitTransaction(true)
     }
     else {
       alert('Something wrong')
@@ -284,7 +318,23 @@ export default function AuctionDetails({params}: {params: {id: string}}) {
 
   useEffect(() => {
     getUserData()
+    getTransactions()
   }, [data, user?._id, update])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setCounter(counter + 1)
+      getTransactions()
+    }, 3000)
+
+    return () => clearTimeout(timeout)
+  }, [counter])
+
+  useEffect(() => {
+    if (!auctions || !auctions.length) {
+      getAllAuctions()
+    }
+  }, [])
 
   if (!data) return <div className="mt-8">
     <h1>All Auction</h1>
@@ -318,6 +368,14 @@ export default function AuctionDetails({params}: {params: {id: string}}) {
           <div className={'info'}>
             <span>Bước giá</span>
             <strong className={'text-orange-400'}>{numberFormat(data.priceStep, true)}</strong>
+          </div>
+          <div className={'info'}>
+            <span></span>
+            <strong className={'text-blue-400'} key={counter}>
+              {
+                data.actions.length ? getTransactionHash(data.actions[0].uuid) : ''
+              }
+            </strong>
           </div>
         </div>
         <div className="actions box flex flex-col gap-4">
