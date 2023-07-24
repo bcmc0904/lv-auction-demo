@@ -56,7 +56,12 @@ export default function AuctionDetails({params}: {params: {id: string}}) {
 
     setData(result)
     let max = 0
-    const actions = result.actions.sort((a: any, b: any) => new Date(a.updatedAt).getTime() > new Date(b.updatedAt).getTime() ? -1 : 1);
+    const actions = result.actions.sort((a: any, b: any) => {
+      if (a.price === b.price) {
+        return new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime() ? -1 : 1
+      }
+      return a.price > b.price ? -1 : 1
+    });
 
     actions.map((item: any, index: number) => {
         if (item.type === 'make_bid') {
@@ -74,7 +79,12 @@ export default function AuctionDetails({params}: {params: {id: string}}) {
     if (!user || !data) return
     const userActions = data.actions
       .filter((item: any) => item.user._id === user._id)
-      .sort((a: any, b: any) => new Date(a.updatedAt).getTime() > new Date(b.updatedAt).getTime() ? -1 : 1)
+      .sort((a: any, b: any) => {
+        if (a.price === b.price) {
+          return new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime() ? -1 : 1
+        }
+        return a.price > b.price ? -1 : 1
+      })
     let max = 0
     let hasDenyBid = false
     let hasFinalizeBid = false
@@ -113,8 +123,13 @@ export default function AuctionDetails({params}: {params: {id: string}}) {
   }
 
   const renderActionHistories = (histories: Array<any>) => {
-    const tmp = histories
-      .sort((a: any, b: any) => new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime() ? -1 : 1)
+    const tmp = JSON.parse(JSON.stringify(histories))
+      .sort((a: any, b: any) => {
+        if (a.price === b.price) {
+          return new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime() ? -1 : 1
+        }
+        return a.price > b.price ? -1 : 1
+      })
       .filter((item: any) => item.type !== 'create_section')
     return tmp.map((item: any, index: number) => <BidTeaser
       key={index}
